@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kt.iot.api.v2.DeviceRegistraction.mapper.DeviceRegistractionMapper">
+
+	<!-- <select id="selectCount" resultType="Integer">
+    	SELECT	COUNT(MBR_SEQ) AS "count"
+		FROM	MBR_BAS 
+		WHERE	
+				COALESCE(DEL_YN, '') != 'Y'
+		<if test='id != null and id !=""'>
+		AND		MBR_ID	= #{id}
+		</if>	
+		<if test="name != null and name !=''">
+		AND		USER_NM	= #{name}
+		</if>
+		<if test="phoneNumber != null and phoneNumber !=''">
+		AND		TEL_NO	= #{phoneNumber}
+		</if>
+		<if test="districtCode != null and districtCode !=''">
+		AND 	DSTR_CD = #{districtCode}
+		</if>
+		<if test="themeCode != null and themeCode !=''">
+		AND		SVC_THEME_CD = #{themeCode}
+		</if>
+		<if test=" serviceCode != null and serviceCode !=''">
+		AND 	UNIT_SVC_CD = #{serviceCode}	
+		</if>
+		<if test='sequence != null'>
+		AND		MBR_SEQ	= #{sequence}
+		</if>	
+		
+    </select>
+
+	<select id="selectMember" resultType="com.kt.iot.api.v11.member.vo.Member">
+    	SELECT
+    			MBR_SEQ			AS "sequence",
+				MBR_ID			AS "id",
+				USER_NM			AS "name",
+				EMAIL			AS "email",
+				TEL_NO			AS "phoneNumber",
+				CRET_DT 		AS "createdOn",
+				DSTR_CD 		AS "districtCode",
+				SVC_THEME_CD 	AS "themeCode",
+				UNIT_SVC_CD		AS "serviceCode"
+		FROM	MBR_BAS
+		WHERE	
+				COALESCE(DEL_YN, '') != 'Y'
+		<if test='id != null and id !=""'>
+		AND		MBR_ID	= #{id}
+		</if>
+		<if test="name != null and name !=''">
+		AND		USER_NM	= #{name}
+		</if>
+		<if test="phoneNumber != null and phoneNumber !=''">
+		AND		TEL_NO	= #{phoneNumber}
+		</if>
+		<if test="sequence != null" >
+		AND		MBR_SEQ = #{sequence}
+		</if>
+		<if test="districtCode != null and districtCode !=''">
+		AND 	DSTR_CD = #{districtCode}
+		</if>
+		<if test="themeCode != null and themeCode !=''">
+		AND		SVC_THEME_CD = #{themeCode}
+		</if>
+		<if test=" serviceCode != null and serviceCode !=''">
+		AND 	UNIT_SVC_CD = #{serviceCode}	
+		</if>
+		<if test="offset > 0" >
+		OFFSET 	(#{offset} - 1) LIMIT #{limit}
+		</if>
+    </select>
+
+    <insert id="insertMember" parameterType="com.kt.iot.api.v11.member.vo.Member" useGeneratedKeys="true" keyProperty="sequence">
+    	<selectKey keyProperty="sequence" resultType="long" order="BEFORE">
+			SELECT 	COALESCE(MAX(MBR_SEQ), 0) + 1 FROM MBR_BAS
+		</selectKey>
+    	INSERT INTO MBR_BAS (
+    		MBR_SEQ,
+			MBR_ID,
+			MBR_PWD,
+			USER_NM,
+			EMAIL,
+			TEL_NO,
+			MBR_ROLE_VAL,
+			DSTR_CD,
+			SVC_THEME_CD,
+			UNIT_SVC_CD,
+			DEL_YN,
+			CRET_DT
+		) VALUES (
+			#{sequence},
+			#{id},
+			md5(#{password}),
+			#{name},
+			#{email},
+			#{phoneNumber},
+			#{role},
+			#{districtCode},
+			#{themeCode},
+			#{serviceCode},
+			'N',
+			now()
+		)
+    </insert>
+
+    <update id="updateMember" parameterType="com.kt.iot.api.v11.member.vo.Member">
+ 		UPDATE MBR_BAS
+ 		<set>
+ 			<if test='id != null and id !=""'>
+			MBR_ID	= #{id},
+			</if>
+			<if test='password != null and password !=""'>
+			MBR_PWD	= md5(#{password}),
+			</if>
+			<if test='name != null and name !=""'>
+			USER_NM	= #{name},
+			</if>
+			<if test='email != null and email !=""'>
+			EMAIL	= #{email},
+			</if>
+			<if test='phoneNumber != null and phoneNumber !=""'>
+			TEL_NO	= #{phoneNumber},
+			</if>
+			<if test='role != null and role !=""'>
+			MBR_ROLE_VAL = #{role},
+			</if>
+			<if test="districtCode != null and districtCode !=''">
+			DSTR_CD = #{districtCode},
+			</if>
+			<if test="themeCode != null and themeCode !=''">
+			SVC_THEME_CD = #{themeCode},
+			</if>
+			<if test=" serviceCode != null and serviceCode !=''">
+			UNIT_SVC_CD = #{serviceCode}	
+ 			</if>
+ 		</set>
+		WHERE MBR_SEQ = #{sequence}
+    </update>
+
+    <update id="deleteMember" parameterType="com.kt.iot.api.v11.member.vo.Member">
+ 		UPDATE MBR_BAS SET
+ 			DEL_YN = 'Y'
+		WHERE MBR_SEQ = #{sequence}
+    </update>
+ -->
+</mapper>

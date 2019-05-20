@@ -1,0 +1,54 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: masterapi-svc-lsh
+spec:
+  host: masterapi-svc-lsh
+  subsets:
+  - name: v1
+    labels: 
+     #app: masterapi-lsh
+      version: v1
+  - name: v2
+    labels:
+     #app: masterapi-lsh
+      version: v2
+  - name: v3
+    labels:
+      #app: masterapi-lsh
+      version: v3
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: masterapi-svc-sangheonkim
+spec:
+  host: masterapi-svc-sangheonkim
+  subsets:
+  - name: v1
+    labels: 
+     #app: masterapi-lsh
+      version: v1
+  - name: v2
+    labels:
+     #app: masterapi-lsh
+      version: v2
+  - name: v3
+    labels:
+      #app: masterapi-lsh
+      version: v3
+#spec:
+#  host: masterapi-svc-sangheonkim
+#  subsets:
+#  - name: v1
+#    labels:
+#     #app: masterapi-lsh
+#      version: v1
+#  - name: v2
+#    labels:
+#     #app: masterapi-lsh
+#      version: v2
+#  - name: v3
+#    labels:
+#      #app: masterapi-lsh
+#      version: v3

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-management-api-config
+  namespace:  kkim
+data:
+  dbHost: iotpostgres
+  #dbHost: 169.56.70.69
+  dbPort: '5432'
+  #dbPort: '31882'
+  dbName: testdb
+  dbUserName: admin123
+  dbUserPassword: admin123
+
+  consumer.api.topic: test
+  consumer.api.threadcount: '1'
+  consumer.api.zookeeper.connect: zk-cs:2181
+  producer.api.broker: kafka-0.kafka-hs:9093,kafka-1.kafka-hs:9093,kafka-2.kafka-hs:9093
+  producer.api.topic: test
+  bootStrap: kafka-0.kafka-hs:9093

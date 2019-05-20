@@ -1,0 +1,46 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: iot
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - iot-gateway
+  http:
+  -  match:
+     - uri:
+         prefix: "/iot"
+     rewrite:
+       uri: "/"
+     route:
+     - destination:
+         host: masterapi-svc-lsh
+         subset: v1
+       weight: 50
+     - destination:
+         host: masterapi-svc-lsh
+         subset: v2
+       weight: 30
+     - destination:
+         host: masterapi-svc-lsh
+         subset: v3
+       weight: 20
+  -  match:
+     - uri:
+         prefix: "/demo"
+     rewrite:
+       uri: "/"
+     route:
+     - destination:
+         host: masterapi-svc-sangheonkim
+         subset: v1
+       weight: 50
+     - destination:
+         host: masterapi-svc-sangheonkim
+         subset: v2
+       weight: 30
+     - destination:
+         host: masterapi-svc-sangheonkim
+         subset: v3
+       weight: 20

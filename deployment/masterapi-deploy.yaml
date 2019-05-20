@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: masterapi-sangheonkim
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: masterapi-sangheonkim
+    spec:
+      containers:
+        - name: masterapi-sangheonkim
+          image: devcluster.icp:8500/iot/devicemanagement
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8280
+          envFrom:
+          - configMapRef:
+              name: device-management-api-config
+
+

@@ -1,0 +1,133 @@
+def label = "masterapi-${UUID.randomUUID().toString()}"
+
+def notifyStarted() {
+    slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+}
+
+def notifySuccessful() {
+    slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+}
+
+def notifyFailed() {
+  slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+}
+
+podTemplate(label: label, 
+	containers: [
+	  containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+	  containerTemplate(name: 'docker', image: 'docker:stable', ttyEnabled: true, command: 'cat'),
+	  containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.0', command: 'cat', ttyEnabled: true),
+	  containerTemplate(name: 'argo-cd-tools', image: 'argoproj/argo-cd-tools:latest', ttyEnabled: true, command: 'cat', args: '', envVars:[envVar(key: 'GIT_SSH_COMMAND', value: 'ssh -o StrictHostKeyChecking=no')] )
+	],
+	volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+		hostPathVolume(hostPath: '/root/.m2', mountPath: '/root/.m2')
+	]
+	
+	) {
+	
+	node(label) {
+	try {
+		
+	  
+	  stage('Get Source') {
+		git "http://169.56.70.68:10080/sangheonKim/masterapi-shkim"
+	  }
+
+	  def props = readProperties  file:'deployment/pipeline.properties'
+	  def tag = VersionNumber (versionNumberString: '${BUILD_DATE_FORMATTED, "yyyyMMdd"}-develop-${BUILDS_TODAY}')
+	  /*def tag = props['version']*/
+	  def gitSrc = props['gitSrc']
+	  def dockerRegistry = props['dockerRegistry']
+	  def image = props['image']
+	  def deployment = props['deployment']
+	  def service = props['service']
+	  def selector = props['selector']
+	  def namespace = props['namespace']
+	  def argocdAppPrefix = props['argocdAppPrefix']
+      def deployRepoUrl = '169.56.70.68:10080/sangheonKim/masterapi-config.git'
+
+	    
+	  stage('Build Maven project') {
+		container('maven') {
+			sh "mvn -B clean package"
+		}
+	  }
+
+/*
+	  stage('Inspection Code') {
+		  container('maven') {
+			  sh "mvn sonar:sonar \
+				  -Dsonar.projectKey=device-management \
+				  -Dsonar.host.url=http://169.56.70.78:31894 \
+				  -Dsonar.login=0a9686ee6dad3fd3496aef3d36e596682a3af035"
+		  }
+	  }
+*/
+
+	  stage('Build Docker image') {
+		container('docker') {
+		  docker.withRegistry("${dockerRegistry}", 'registry-credentials') {
+			sh "docker build -t ${image}:${tag} ."
+			sh "docker push ${image}:${tag}"
+			sh "docker tag ${image}:${tag} ${image}:latest"
+			sh "docker push ${image}:latest"
+		  }
+		}
+	  }
+	  /* */
+	  def env2 = "prod"
+	    stage( "Deploy ${env2}" ) {
+	      container('argo-cd-tools') {
+	        println("Deploying to ${argocdAppPrefix}")
+	          dir("deployment-${env2}-${tag}") {
+	             withCredentials([usernamePassword(credentialsId: 'gitlab-auth', usernameVariable: 'username', passwordVariable: 'password')]) {
+	              sh "git config --global user.name 'root'"
+	              sh "git config --global user.email 'root@example.com'"
+	              sh "git config --global http.sslVerify false"
+	              sh "git clone http://${deployRepoUrl}"
+	              sh "cd \$(basename 'masterapi-config') && cp ./templates/masterapi-deploy.yaml ./${env2}/masterapi-deploy.yaml && sed -i s%IMAGE_TAG_PLACEHOLDER%${tag}% ./${env2}/masterapi-deploy.yaml && git add * && git commit -m 'update image for ${env2} for app commit ${tag}' && git push http://$username:$password@${deployRepoUrl} --all"
+	            }
+	            }
+	        }
+	    }  
+	 
+	  
+/*	
+	  stage( 'Clean Up Existing Deployments' ) {
+		container('kubectl') {
+		  withCredentials([[$class: 'UsernamePasswordMultiBinding',
+							  credentialsId: 'registry-credentials',
+							  usernameVariable: 'DOCKER_HUB_USER',
+							  passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
+			  
+			  sh "kubectl delete deployments -n ${namespace} --selector=app=${selector}"
+		  }
+		}
+	  }
+	  
+	  stage( 'Deploy to Cluster' ) {
+		container('kubectl') {
+		  withCredentials([[$class: 'UsernamePasswordMultiBinding',
+							  credentialsId: 'registry-credentials',
+							  usernameVariable: 'DOCKER_HUB_USER',
+							  passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
+			  
+			  sh "kubectl apply -n ${namespace} -f ${deployment}"
+			  sh "sleep 5"
+			  sh "kubectl apply -n ${namespace} -f ${service}"
+		  }
+		}
+	  }
+	
+*/		
+		
+	  notifySuccessful()
+	  } catch(e) {
+	print(e)
+        currentBuild.result = "FAILED"
+        notifyFailed()
+    }
+    
+  }
+}
+

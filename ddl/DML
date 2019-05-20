@@ -1,0 +1,14 @@
+INSERT INTO public.svc_tgt_bas(
+	svc_tgt_seq)
+	VALUES (1);
+
+
+
+INSERT INTO public.spot_dev_bas(
+	svc_dev_seq, svc_tgt_seq, gw_cnct_id, spot_dev_id, dev_model_seq)
+	VALUES (2, 2, 'a', 'b',2);
+
+
+INSERT INTO public.dev_model_bas(
+	dev_model_seq, bind_type_cd, cret_dt, cretr_id, district_cd, dev_model_cd, terml_makr_nm, amdr_dt, amdr_id, dev_model_nm, dev_model_parent, prot_type, svc_cd, them_cd, dev_type_cd)
+	VALUES (0, 'a', now(), 'a', 'a','a','a', now(), 'a', 'a', 'a', 'a', 'a','a','a');

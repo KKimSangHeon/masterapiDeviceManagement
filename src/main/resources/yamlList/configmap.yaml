@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-management-api-config
+  namespace:  iot
+data:
+  dbHost: iotpostgres2
+  #dbHost: 169.56.70.69
+  dbPort: '5432'
+  #dbPort: '31882'
+  dbName: testdb2
+  dbUserName: admin123
+  dbUserPassword: admin123
+  acpHost: http://169.56.70.67:31804
+  consumerTopic: test
+  consumerThreadcount: '1'
+  consumerZookeeperConnect: zk-cs:2181
+  producerBroker: kafka-0.kafka-hs:9093,kafka-1.kafka-hs:9093,kafka-2.kafka-hs:9093
+  producerTopic: test

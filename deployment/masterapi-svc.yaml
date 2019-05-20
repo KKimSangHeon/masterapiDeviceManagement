@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: masterapi-svc-sangheonkim
+  labels:
+    name: masterapi-svc-sangheonkim
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8280
+      protocol: TCP
+  selector:
+    app: masterapi-sangheonkim
+  type: NodePort
+
